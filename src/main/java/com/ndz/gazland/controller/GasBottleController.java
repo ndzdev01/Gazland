@@ -64,14 +64,14 @@ public class GasBottleController {
     }
 
     @PatchMapping("/increase/{id}/stock")
-    public ResponseEntity increaseStock(@PathVariable int id, int quantity)
+    public ResponseEntity increaseStock(@PathVariable int id, @RequestParam int quantity)
     {
         gasBottleService.increaseStock(id, quantity);
         return ResponseEntity.status(HttpStatus.OK).body("Augmentation du stock reussie");
     }
 
     @PatchMapping("/decrease/{id}/stock")
-    public ResponseEntity decreaseStock(@PathVariable int id, int quantity)
+    public ResponseEntity decreaseStock(@PathVariable int id,@RequestParam int quantity)
     {
         gasBottleService.decreaseStock(id, quantity);
         return ResponseEntity.status(HttpStatus.OK).body("diminution du stock ");

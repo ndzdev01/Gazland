@@ -16,13 +16,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
-@NoArgsConstructor
 @Slf4j
 public class GasBottleService {
-    //Injection avec @AllArgsConstructor de Lombock
     GasBottleRepository gasBottleRepository;
-
+    public GasBottleService(GasBottleRepository gasBottleRepository)
+    {
+        this.gasBottleRepository = gasBottleRepository;
+    }
     //Recuperer tous les produits par quantite en stock  decroissant
     public List<GasBottleDTO> getAll()
     {

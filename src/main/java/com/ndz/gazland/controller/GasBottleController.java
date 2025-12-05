@@ -74,6 +74,7 @@ public class GasBottleController {
     public ResponseEntity decreaseStock(@PathVariable int id,@RequestParam int quantity)
     {
         gasBottleService.decreaseStock(id, quantity);
+        log.info("Diminution du stock de la bouteille avec pour id {} de {} unites",id, quantity);
         return ResponseEntity.status(HttpStatus.OK).body("diminution du stock ");
     }
 }

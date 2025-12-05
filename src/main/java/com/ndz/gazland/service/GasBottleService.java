@@ -5,6 +5,8 @@ import com.ndz.gazland.mapper.GasBottleMapper;
 import com.ndz.gazland.models.GasBottle;
 import com.ndz.gazland.repository.GasBottleRepository;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +17,8 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@NoArgsConstructor
+@Slf4j
 public class GasBottleService {
     //Injection avec @AllArgsConstructor de Lombock
     GasBottleRepository gasBottleRepository;
@@ -30,9 +34,19 @@ public class GasBottleService {
                 .collect(Collectors.toList());
     }
 
+    //Recuperer un produit par ID
+    public GasBottleDTO getById(int id)
+    {
+        return GasBottleMapper.mapToGasBottleDTO(gasBottleRepository.findById(id).orElseThrow(()->{
+            log.error("Boutteille  GasBottle {} indisponible", id);
+           return new RuntimeException("Bouteille de gaz indisponible");
+        }));
+    }
+
     //Ajouter un produit
     public GasBottleDTO addProduct(GasBottle gasBottle)
     {
+        log.info("Enregistrement d'une bouteille {} dans la base de donnees", gasBottle.getBrand());
         return GasBottleMapper.mapToGasBottleDTO(gasBottleRepository.save(gasBottle));
     }
 
@@ -41,7 +55,9 @@ public class GasBottleService {
     public void deleteProduct(int id)
     {
         //on recupere le produit correspondant à l'id passé parametre
-        GasBottle gasBottle = gasBottleRepository.findById(id).orElseThrow(()->new RuntimeException("Produit non trouvé"));
+        GasBottle gasBottle = gasBottleRepository.findById(id).orElseThrow(()->{
+            log.error("Bouteille GasBottle{} indisponible", id);
+            return new RuntimeException("Impossible de supprimer une bouteille  non disponible dans la base de donnees");});
         gasBottleRepository.delete(gasBottle);
     }
 
@@ -56,6 +72,7 @@ public class GasBottleService {
             gasBottle_.setPrice(gasBottle.getPrice());
             gasBottle_.setStock(gasBottle.getStock());
             //Sauvegarde dans la base de donnees
+        log.info("Mise a jour de la bouteille {} ", id);
             return  GasBottleMapper.mapToGasBottleDTO(gasBottleRepository.save(gasBottle_));
     }
 
@@ -68,6 +85,7 @@ public class GasBottleService {
         int currentStock = gasBottle.getStock();
         int newStock = currentStock + quantity;
         gasBottle.setStock(newStock);
+        log.info("Augmentation du stock de la bouteille {} de {} unites", id, quantity);
     }
 
     //Diminuer le stock d'un produit
@@ -80,6 +98,7 @@ public class GasBottleService {
         int newStock = currentStock - quantity;
         if(currentStock < quantity)
         {
+            log.warn("Stock insuffisant, impossible d'effectuer une decrementation de {} unites sur la bouteille {} ", quantity, id);
             throw new RuntimeException("Stock insuffisant");
         }
         gasBottle.setStock(newStock);
@@ -91,5 +110,6 @@ public class GasBottleService {
     {
         GasBottle gasBottle = gasBottleRepository.findById(id).orElseThrow(()->new RuntimeException("Produit non trouvé"));
         gasBottle.setStock(0);
+        log.info("Mise a jour du stock de la bouteille {} a zero ", id);
     }
 }

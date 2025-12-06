@@ -30,11 +30,17 @@ public class User {
     @Pattern(regexp = "^6\\d{8}$")
     private String phoneNumber;
 
-    @Email(regexp = "^[a-z0-9_-]+@[a-z]+\\.[a-z]{2,3}$")
-    @Column(unique = true, nullable = false)
+    @Email(regexp = "^[a-z_-]+@[a-z0-9_-]+\\.[a-z]{2,3}$")
+    @Column(unique = true, nullable = false, name = "email_adress")
     private String emailAdress;
 
     @NotNull
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[.@#$%!?*=&])[A-Za-z\\d.@#$%!?*=&]{6,}$")
     private String password;
+
+    @NotNull
+    private String role;
+
+//    @ManyToOne
+//    @JoinTable(name = "cart", )
 }

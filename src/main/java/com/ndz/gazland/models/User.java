@@ -1,5 +1,6 @@
 package com.ndz.gazland.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -8,6 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+
 
 @Entity
 @Table(name = "users")
@@ -35,12 +38,14 @@ public class User {
     private String emailAdress;
 
     @NotNull
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[.@#$%!?*=&])[A-Za-z\\d.@#$%!?*=&]{6,}$")
+//    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[.@#$%!?*=&])[A-Za-z\\d.@#$%!?*=&]{6,}$", message = "Le mot de passe n'est pas assez fort")
     private String password;
 
     @NotNull
     private String role;
 
-//    @ManyToOne
-//    @JoinTable(name = "cart", )
+    @JsonIgnore
+    @OneToOne(mappedBy = "user")
+    private Cart cart;
+
 }

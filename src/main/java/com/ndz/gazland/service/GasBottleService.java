@@ -5,12 +5,16 @@ import com.ndz.gazland.mapper.GasBottleMapper;
 import com.ndz.gazland.models.GasBottle;
 import com.ndz.gazland.repository.GasBottleRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,12 +37,17 @@ public class GasBottleService {
     }
 
     //Recuperer un produit par ID
-    public GasBottleDTO getById(int id)
+    public ResponseEntity getById(int id)
     {
-        return GasBottleMapper.mapToGasBottleDTO(gasBottleRepository.findById(id).orElseThrow(()->{
-            log.error("Boutteille  GasBottle {} indisponible", id);
-           return new RuntimeException("Bouteille de gaz indisponible");
-        }));
+        if(!gasBottleRepository.existsById(id))
+        {
+            Map<String, Object> response= new HashMap<>();
+            response.put("message", "PRODUCT NOT FOUND");
+            response.put("status", 404);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(gasBottleRepository.findById(id).get());
     }
 
     //Ajouter un produit
@@ -88,7 +97,7 @@ public class GasBottleService {
 
     //Diminuer le stock d'un produit
     @Transactional
-    public void decreaseStock(int id, int quantity)
+    public ResponseEntity decreaseStock(int id, int quantity)
     {
 
         GasBottle gasBottle = gasBottleRepository.findById(id).orElseThrow(()->new RuntimeException("Produit non trouvé"));
@@ -97,9 +106,11 @@ public class GasBottleService {
         if(currentStock < quantity)
         {
             log.warn("Stock insuffisant, impossible d'effectuer une decrementation de {} unites sur la bouteille {} ", quantity, id);
-            throw new RuntimeException("Stock insuffisant");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Stock insuffisant");
         }
         gasBottle.setStock(newStock);
+        log.info("Stock de {} décrémentée avec succes", gasBottle.getBrand());
+        return ResponseEntity.status(HttpStatus.OK).body("Stock de "+gasBottle.getBrand()+" décrémentée avec succes");
     }
 
     //Vider le stock

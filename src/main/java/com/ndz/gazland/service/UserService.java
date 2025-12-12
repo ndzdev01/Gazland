@@ -1,35 +1,47 @@
 package com.ndz.gazland.service;
 
 
+import com.ndz.gazland.config.PasswordEncoder;
 import com.ndz.gazland.dto.UserResponseDTO;
 import com.ndz.gazland.mapper.UserMapper;
+import com.ndz.gazland.models.GasBottle;
 import com.ndz.gazland.models.User;
+import com.ndz.gazland.repository.GasBottleRepository;
 import com.ndz.gazland.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class UserService {
-
+    @Autowired
     UserRepository userRepository;
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
 
     public UserService() {
     }
 
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     //CREATE
-    public UserResponseDTO createUser(User user)
+    public ResponseEntity createUser(User user)
     {
         log.info("CREATING NEW USER NAMED {} ", user.getFirstname() +" "+user.getLastname());
-        return UserMapper.mapToUserResponseDTO(userRepository.save(user));
+        user.setPassword(passwordEncoder.encoder(user.getPassword()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(userRepository.save(user));
+//        return UserMapper.mapToUserResponseDTO(userRepository.save(user));
+
     }
 
     //READ
@@ -44,10 +56,17 @@ public class UserService {
     }
 
     //READ BY ID
-    public Optional<UserResponseDTO> readUserByID(int id)
+    public ResponseEntity readUserByID(int id)
     {
         log.info("SEARCHING A USER BY HIS ID {}", id);
-        return Optional.of(UserMapper.mapToUserResponseDTO(userRepository.findById(id).orElseThrow()));
+        Map<String,Object> response = new HashMap<>();
+        if(!userRepository.existsById(id))
+        {
+            response.put("message", "USER NOT FOUND");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(userRepository.findById(id).get());
     }
 
     //UPDATE
@@ -71,5 +90,7 @@ public class UserService {
         log.info("DELETING USER ", userFound.getFirstname() +" "+userFound.getLastname());
         userRepository.delete(userFound);
     }
+
+
 
 }

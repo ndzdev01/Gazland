@@ -38,7 +38,7 @@ public class GasBottleController {
     public ResponseEntity getGasBottleByID(@PathVariable int id)
     {
         log.info("Find a gas bottle by his id {}", id);
-        return ResponseEntity.status(HttpStatus.OK).body(gasBottleService.getById(id));
+        return gasBottleService.getById(id);
     }
 
     @PostMapping
@@ -73,8 +73,7 @@ public class GasBottleController {
     @PatchMapping("/decrease/{id}/stock")
     public ResponseEntity decreaseStock(@PathVariable int id,@RequestParam int quantity)
     {
-        gasBottleService.decreaseStock(id, quantity);
         log.info("Diminution du stock de la bouteille avec pour id {} de {} unites",id, quantity);
-        return ResponseEntity.status(HttpStatus.OK).body("diminution du stock ");
+       return gasBottleService.decreaseStock(id, quantity);
     }
 }

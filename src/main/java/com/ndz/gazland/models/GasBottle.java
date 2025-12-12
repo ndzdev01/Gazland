@@ -1,6 +1,7 @@
 package com.ndz.gazland.models;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -8,7 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -33,6 +36,10 @@ public class GasBottle {
 
     @NotNull(message = "Veuillez indique la quantite en stock")
     private int stock;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "gasBottle")
+    private List<CartItem> cartItemList;
 
     @Override
     public boolean equals(Object o) {
